@@ -25,6 +25,8 @@ void print_grid(int size, int grid[36][36]) {
 	}
 }
 
+/* Custom functions start */
+
 bool markEmpty(int size, int grid[36][36], int *row, int *col) {
 	for(int i=0; i<size; i++) {
 		for(int j=0; j<size; j++) {
@@ -81,6 +83,8 @@ bool solve(int size, int grid[36][36]) {
 	
 	return false;
 }
+
+/* Custom functions end */
 
 int main(int argc, char *argv[]) {
 	int grid[36][36], size, i, j;
