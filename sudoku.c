@@ -4,6 +4,7 @@
 # include <stdlib.h>
 # include <math.h>
 # include <stdbool.h>
+# include <pthread.h>
 
 void read_grid_from_file(int size, char *ip_file, int grid[36][36]) {
 	FILE *fp;
@@ -25,7 +26,7 @@ void print_grid(int size, int grid[36][36]) {
 	}
 }
 
-/* Custom functions start */
+/* Solver functions start */
 
 bool markEmpty(int size, int grid[36][36], int *row, int *col) {
 	for(int i=0; i<size; i++) {
@@ -84,7 +85,7 @@ bool solve(int size, int grid[36][36]) {
 	return false;
 }
 
-/* Custom functions end */
+/* Solver functions end */
 
 int main(int argc, char *argv[]) {
 	int grid[36][36], size, i, j;
