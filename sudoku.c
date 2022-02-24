@@ -21,7 +21,7 @@ void print_grid(int size, int grid[36][36]) {
 	/* The segment below prints the grid in a standard format. Do not change */
 	for (i=0; i<size; i++) {
 		for (j=0; j<size; j++)
-			printf("%d\t", grid[i][j]);
+			printf("%d ", grid[i][j]);
 		printf("\n");
 	}
 }
