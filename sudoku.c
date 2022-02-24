@@ -112,7 +112,6 @@ void* solveGrid(void *args) {
 			clone[i]->result = false;
 
 			pthread_create(&thread[i], NULL, solveGrid, (void *)clone[i]);
-			data->grid[row][col] = 0;
 		}
 		else init[i] = false;
 	}
@@ -124,7 +123,7 @@ void* solveGrid(void *args) {
 	for(int i=0; i<size; i++) {
 		if(init[i] && clone[i]->result == true) {
 			copyGrid(clone[i]->grid, data->grid, size);
-			data->result == true;
+			data->result = true;
 			return NULL;
 		}
 	}
