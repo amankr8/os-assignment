@@ -33,7 +33,16 @@ struct params {
 	int grid[36][36];
 	int row;
 	int col;
+	bool result;
 };
+
+void copyGrid(int fromGrid[36][36], int toGrid[36][36], int size) {
+	for(int i=0; i<size; i++) {
+		for(int j=0; j<size; j++) {
+			toGrid[i][j] = fromGrid[i][j];
+		}
+	}
+}
 
 bool markEmpty(int size, int grid[36][36], int *row, int *col) {
 	for(int i=0; i<size; i++) {
@@ -82,17 +91,21 @@ void *solve(void *args) {
 	int row = data->row;
 	int col = data->col;
 	
-	if(!markEmpty(size, data->grid, &row, &col)) return true;
+	if(!markEmpty(size, data->grid, &row, &col)) {
+		data->result = true;
+		return NULL;
+	}
 	
 	for(int i=1; i<=size; i++) {
 		if(isValid(size, data->grid, row, col, i)) {
 			data->grid[row][col] = i;
-			if(solve(data)) return true;
+			solve(data);
+			if(data->result == true) return NULL;
 		}
 		data->grid[row][col] = 0;
 	}
 	
-	return false;
+	return NULL;
 }
 
 /* Solver functions end */
@@ -109,12 +122,18 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
+
 	struct params* data;
 	data->size = size;
+	copyGrid(grid, data->grid, size);
+	data->result = false;
 
 	pthread_t thread;
-	pthread_create(&thread, NULL, solve, &data);
+	pthread_create(&thread, NULL, solve, (void *)data);
 	pthread_join(thread, NULL);
-	
+	copyGrid(data->grid, grid, size);
+
+	/* Do your thing here */
+
 	print_grid(size, grid);
 }
