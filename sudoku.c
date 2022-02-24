@@ -127,8 +127,6 @@ void* solveGrid(void *args) {
 			return NULL;
 		}
 	}
-	
-	return NULL;
 }
 
 void solve(int size, int grid[36][36]) {
