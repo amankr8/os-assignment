@@ -85,7 +85,7 @@ bool isValid(int size, int grid[36][36], int row, int col, int num) {
 	return !inRow(size, grid, row, num) && !inCol(size, grid, col, num) && !inBox(boxSize, grid, row - row%boxSize, col - col%boxSize, num);
 }
 
-void* solveGrid(void *args) {
+void* solve(void *args) {
 	struct params* data = (struct params*) args;
 	int size = data->size;
 	int row = data->row;
@@ -95,35 +95,17 @@ void* solveGrid(void *args) {
 		data->result = true;
 		return NULL;
 	}
-
-	/* Start multithreading */
-	pthread_t thread[size];
-
-	struct params* d[size];
 	
 	for(int i=1; i<=size; i++) {
 		if(isValid(size, data->grid, row, col, i)) {
 			data->grid[row][col] = i;
-			// pthread_create(&thread[i-1], NULL, solveGrid, (void *)data);
-			solveGrid((void * )data);
+			solve((void* )data);
 			if(data->result == true) return NULL;
-			data->grid[row][col] = 0;
 		}
+		data->grid[row][col] = 0;
 	}
 	
 	return NULL;
-}
-
-void solve(int size, int grid[36][36]) {
-	struct params* data = malloc(sizeof(struct params));
-
-	copyGrid(grid, data->grid, size);
-	data->size = size;
-	data->result = false;
-
-	solveGrid((void *)data);
-
-	copyGrid(data->grid, grid, size);
 }
 
 /* Solver functions end */
@@ -140,7 +122,19 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
-	solve(size, grid);
+
+	struct params* data = malloc(sizeof(struct params));
+	data->size = size;
+	copyGrid(grid, data->grid, size);
+	data->result = false;
+
+	pthread_t thread;
+	pthread_create(&thread, NULL, solve, (void *)data);
+	pthread_join(thread, NULL);
+
+	copyGrid(data->grid, grid, size);
+
+	/* Do your thing here */
 
 	print_grid(size, grid);
 }
