@@ -28,7 +28,8 @@ void print_grid(int size, int grid[36][36]) {
 
 /* Solver functions start */
 
-struct data {
+struct params {
+	int size;
 	int grid[36][36];
 	int row;
 	int col;
@@ -75,17 +76,20 @@ bool isValid(int size, int grid[36][36], int row, int col, int num) {
 	return !inRow(size, grid, row, num) && !inCol(size, grid, col, num) && !inBox(boxSize, grid, row - row%boxSize, col - col%boxSize, num);
 }
 
-bool solve(int size, int grid[36][36]) {
-	int row, col;
+void *solve(void *args) {
+	struct params* data = (struct params*) args;
+	int size = data->size;
+	int row = data->row;
+	int col = data->col;
 	
-	if(!markEmpty(size, grid, &row, &col)) return true;
+	if(!markEmpty(size, data->grid, &row, &col)) return true;
 	
 	for(int i=1; i<=size; i++) {
-		if(isValid(size, grid, row, col, i)) {
-			grid[row][col] = i;
-			if(solve(size, grid)) return true;
+		if(isValid(size, data->grid, row, col, i)) {
+			data->grid[row][col] = i;
+			if(solve(data)) return true;
 		}
-		grid[row][col] = 0;
+		data->grid[row][col] = 0;
 	}
 	
 	return false;
@@ -105,7 +109,12 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
-	solve(size, grid);
+	struct params* data;
+	data->size = size;
+
+	pthread_t thread;
+	pthread_create(&thread, NULL, solve, &data);
+	pthread_join(thread, NULL);
 	
 	print_grid(size, grid);
 }
