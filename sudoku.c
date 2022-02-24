@@ -99,34 +99,41 @@ void* solveGrid(void *args) {
 	/* Multithreads */
 	pthread_t thread[size];
 	struct params* clone[size];
+	bool init[size];
 	
 	for(int i=0; i<size; i++) {
 		if(isValid(size, data->grid, row, col, i+1)) {
 			data->grid[row][col] = i+1;
 
+			init[i] = true;
+			clone[i] = (struct params*) malloc(sizeof(struct params));
 			copyGrid(data->grid, clone[i]->grid, size);
 			clone[i]->size = data->size;
 			clone[i]->result = false;
 
 			pthread_create(&thread[i], NULL, solveGrid, (void *)clone[i]);
-
-			if(clone[i]->result == true) {
-				copyGrid(clone[i]->grid, data->grid, size);
-				return NULL;
-			}
 			data->grid[row][col] = 0;
 		}
+		else init[i] = false;
 	}
 
 	for(int i=0; i<size; i++) {
-		pthread_join(thread[i], NULL);
+		if(init[i]) pthread_join(thread[i], NULL);
+	}
+
+	for(int i=0; i<size; i++) {
+		if(init[i] && clone[i]->result == true) {
+			copyGrid(clone[i]->grid, data->grid, size);
+			data->result == true;
+			return NULL;
+		}
 	}
 	
 	return NULL;
 }
 
 void solve(int size, int grid[36][36]) {
-	struct params* data = malloc(sizeof(struct params));
+	struct params* data = (struct params*) malloc(sizeof(struct params));
 
 	copyGrid(grid, data->grid, size);
 	data->size = size;

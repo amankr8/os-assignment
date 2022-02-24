@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 	
 	/* Do your thing here */
 
-	struct params* data = malloc(sizeof(struct params));
+	struct params* data = (struct params*) malloc(sizeof(struct params));
 	data->size = size;
 	copyGrid(grid, data->grid, size);
 	data->result = false;
