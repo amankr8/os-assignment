@@ -5,6 +5,7 @@
 # include <math.h>
 # include <stdbool.h>
 # include <pthread.h>
+# include <time.h>
 
 void read_grid_from_file(int size, char *ip_file, int grid[36][36]) {
 	FILE *fp;
@@ -21,7 +22,7 @@ void print_grid(int size, int grid[36][36]) {
 	/* The segment below prints the grid in a standard format. Do not change */
 	for (i=0; i<size; i++) {
 		for (j=0; j<size; j++)
-			printf("%d ", grid[i][j]);
+			printf("%d\t", grid[i][j]);
 		printf("\n");
 	}
 }
@@ -155,7 +156,11 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
+	clock_t t;
+    t = clock();
 	solve(size, grid);
+	double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+    printf("solve() took %f seconds to execute \n", time_taken);
 
 	print_grid(size, grid);
 }
