@@ -110,7 +110,6 @@ void* solveGrid(void *args) {
 
 			/* Create clone of grid */
 			clone[i] = (struct params*) malloc(sizeof(struct params));
-			printf("alloc\n");
 			copyGrid(data->grid, clone[i]->grid, size);
 			clone[i]->size = data->size;
 			clone[i]->result = false;
