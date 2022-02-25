@@ -110,6 +110,7 @@ void* solveGrid(void *args) {
 
 			/* Create clone of grid */
 			clone[i] = (struct params*) malloc(sizeof(struct params));
+			printf("alloc\n");
 			copyGrid(data->grid, clone[i]->grid, size);
 			clone[i]->size = data->size;
 			clone[i]->result = false;
@@ -120,15 +121,23 @@ void* solveGrid(void *args) {
 		else init[i] = false;
 	}
 
+	/* Wait for threads */
 	for(int i=0; i<size; i++) {
-		if(init[i]) pthread_join(thread[i], NULL);
+		if(init[i]) {
+			pthread_join(thread[i], NULL);
+		}
 	}
 
+	/* Check result */
 	for(int i=0; i<size; i++) {
-		if(init[i] && clone[i]->result == true) {
-			copyGrid(clone[i]->grid, data->grid, size);
-			data->result = true;
-			return NULL;
+		if(init[i]) {
+			if(clone[i]->result == true) {
+				copyGrid(clone[i]->grid, data->grid, size);
+				data->result = true;
+				free(clone[i]);
+				return NULL;
+			}
+			free(clone[i]);
 		}
 	}
 }
@@ -159,12 +168,17 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
+
+	solve(size, grid);
+
+	/*
 	clock_t t;
     t = clock();
 	solve(size, grid);
 	t = clock() - t;
-	double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+	double time_taken = ((double)t)/CLOCKS_PER_SEC;
     printf("solve() took %f seconds to execute \n", time_taken);
+	*/
 
 	print_grid(size, grid);
 }

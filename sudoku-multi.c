@@ -5,6 +5,7 @@
 # include <math.h>
 # include <stdbool.h>
 # include <pthread.h>
+# include <time.h>
 
 void read_grid_from_file(int size, char *ip_file, int grid[36][36]) {
 	FILE *fp;
@@ -96,27 +97,44 @@ void* solveGrid(void *args) {
 		return NULL;
 	}
 
-	/* Start multithreading */
+	/* Multithreads */
 	pthread_t thread[size];
-	struct params* d[size];
+	struct params* clone[size];
+	bool init[size];
 	
-	for(int i=1; i<=size; i++) {
-		if(isValid(size, data->grid, row, col, i)) {
-			data->grid[row][col] = i;
+	for(int i=0; i<size; i++) {
+		if(isValid(size, data->grid, row, col, i+1)) {
+			init[i] = true;
 
-			// pthread_create(&thread[i-1], NULL, solveGrid, (void *)data);
-			
-			solveGrid((void * )data);
-			if(data->result == true) return NULL;
-			data->grid[row][col] = 0;
+			data->grid[row][col] = i+1;
+
+			/* Create clone of grid */
+			clone[i] = (struct params*) malloc(sizeof(struct params));
+			copyGrid(data->grid, clone[i]->grid, size);
+			clone[i]->size = data->size;
+			clone[i]->result = false;
+
+			/* Thread creation for the solving clone */
+			pthread_create(&thread[i], NULL, solveGrid, (void *)clone[i]);
+		}
+		else init[i] = false;
+	}
+
+	for(int i=0; i<size; i++) {
+		if(init[i]) pthread_join(thread[i], NULL);
+	}
+
+	for(int i=0; i<size; i++) {
+		if(init[i] && clone[i]->result == true) {
+			copyGrid(clone[i]->grid, data->grid, size);
+			data->result = true;
+			return NULL;
 		}
 	}
-	
-	return NULL;
 }
 
 void solve(int size, int grid[36][36]) {
-	struct params* data = malloc(sizeof(struct params));
+	struct params* data = (struct params*) malloc(sizeof(struct params));
 
 	copyGrid(grid, data->grid, size);
 	data->size = size;
@@ -141,7 +159,12 @@ int main(int argc, char *argv[]) {
 	read_grid_from_file(size, argv[2], grid);
 	
 	/* Do your thing here */
+	clock_t t;
+    t = clock();
 	solve(size, grid);
+	t = clock() - t;
+	double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+    printf("solve() took %f seconds to execute \n", time_taken);
 
 	print_grid(size, grid);
 }
