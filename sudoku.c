@@ -104,14 +104,17 @@ void* solveGrid(void *args) {
 	
 	for(int i=0; i<size; i++) {
 		if(isValid(size, data->grid, row, col, i+1)) {
+			init[i] = true;
+
 			data->grid[row][col] = i+1;
 
-			init[i] = true;
+			/* Create clone of grid */
 			clone[i] = (struct params*) malloc(sizeof(struct params));
 			copyGrid(data->grid, clone[i]->grid, size);
 			clone[i]->size = data->size;
 			clone[i]->result = false;
 
+			/* Thread creation for the solving clone */
 			pthread_create(&thread[i], NULL, solveGrid, (void *)clone[i]);
 		}
 		else init[i] = false;
@@ -159,6 +162,7 @@ int main(int argc, char *argv[]) {
 	clock_t t;
     t = clock();
 	solve(size, grid);
+	t = clock() - t;
 	double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
     printf("solve() took %f seconds to execute \n", time_taken);
 
